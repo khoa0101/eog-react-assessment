@@ -51,7 +51,7 @@ const MertricSelector: FC<MetricsProps> = (props) => {
   };
 
   return (
-    <FormControl className='select-metrics-container'>
+    <FormControl fullWidth>
       <InputLabel id="select-metrics-label">Select Metrics</InputLabel>
       <Select
         labelId="select-metrics-label"
@@ -63,7 +63,7 @@ const MertricSelector: FC<MetricsProps> = (props) => {
       >
         {metrics.map((name) => (
           <MenuItem key={`${name}`} value={name}>
-            <Checkbox checked={metrics.indexOf(name) > -1} />
+            <Checkbox checked={currentMetrics.indexOf(name) > -1} />
             <ListItemText primary={name} />
           </MenuItem>
         ))}
