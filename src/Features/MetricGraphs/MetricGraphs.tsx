@@ -51,7 +51,7 @@ const MertricSelector: FC<MetricsProps> = (props) => {
   };
 
   return (
-    <FormControl>
+    <FormControl className='select-metrics-container'>
       <InputLabel id="select-metrics-label">Select Metrics</InputLabel>
       <Select
         labelId="select-metrics-label"
