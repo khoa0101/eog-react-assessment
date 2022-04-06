@@ -73,6 +73,13 @@ const MertricSelector: FC<MetricsProps> = (props) => {
 };
 
 const MetricGraphs: FC = () => {
+  console.log('Hi!');
+  return (
+    <div>MetricGraphs</div>
+  );
+};
+
+const MetricGraphsContainer: FC = () => {
   const [currentMetrics, setCurrentMetrics] = useState<string[]>([]);
   const { loading, error, data } = useQuery(metricQuery);
 
@@ -80,20 +87,22 @@ const MetricGraphs: FC = () => {
   if (error) return <Typography color="error">{error}</Typography>;
   if (!data) return <Chip label="Metrics not found" />;
 
-  console.log(currentMetrics);
   const metrics = data.getMetrics;
 
   return (
-    <MertricSelector
-      metrics={metrics}
-      currentMetrics={currentMetrics}
-      setCurrentMetrics={setCurrentMetrics}
-    />
+    <section>
+      <MertricSelector
+        metrics={metrics}
+        currentMetrics={currentMetrics}
+        setCurrentMetrics={setCurrentMetrics}
+      />
+      <MetricGraphs />
+    </section>
   );
 };
 
 export default () => (
   <ApolloProvider client={client}>
-    <MetricGraphs />
+    <MetricGraphsContainer />
   </ApolloProvider>
 );
