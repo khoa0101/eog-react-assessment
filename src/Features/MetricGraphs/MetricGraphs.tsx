@@ -7,7 +7,15 @@ import {
   InMemoryCache,
 } from '@apollo/client';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { Typography } from '@material-ui/core';
+import {
+  Typography,
+  Select,
+  MenuItem,
+  Checkbox,
+  InputLabel,
+  FormControl,
+  ListItemText,
+} from '@material-ui/core';
 import Chip from '../../components/Chip';
 
 const client = new ApolloClient({
@@ -23,18 +31,49 @@ const metricQuery = gql`
 
 type MetricsProps = {
   metrics: string[];
-  setMetrics: any;
+  currentMetrics: string[];
+  setCurrentMetrics: any;
 };
 
 const MertricSelector: FC<MetricsProps> = (props) => {
-  console.log(props);
+  const { metrics, currentMetrics, setCurrentMetrics } = props;
+
+  const handleChange = (e: any) => {
+    const {
+      target: {
+        value,
+      },
+    } = e;
+
+    setCurrentMetrics(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  };
+
   return (
-    <div>This is the MetricSelector</div>
+    <FormControl>
+      <InputLabel id="select-metrics-label">Select Metrics</InputLabel>
+      <Select
+        labelId="select-metrics-label"
+        className="select-metrics-dropdown"
+        multiple
+        value={currentMetrics}
+        onChange={handleChange}
+        renderValue={(selected: any) => selected.join(', ')}
+      >
+        {metrics.map((name) => (
+          <MenuItem key={`${name}`} value={name}>
+            <Checkbox checked={metrics.indexOf(name) > -1} />
+            <ListItemText primary={name} />
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
 
 const MetricGraphs: FC = () => {
-  const [currentMetrics, setCurrentMetrics] = useState<Object>({});
+  const [currentMetrics, setCurrentMetrics] = useState<string[]>([]);
   const { loading, error, data } = useQuery(metricQuery);
 
   if (loading) return <LinearProgress />;
@@ -45,7 +84,11 @@ const MetricGraphs: FC = () => {
   const metrics = data.getMetrics;
 
   return (
-    <MertricSelector metrics={metrics} setMetrics={setCurrentMetrics} />
+    <MertricSelector
+      metrics={metrics}
+      currentMetrics={currentMetrics}
+      setCurrentMetrics={setCurrentMetrics}
+    />
   );
 };
 
