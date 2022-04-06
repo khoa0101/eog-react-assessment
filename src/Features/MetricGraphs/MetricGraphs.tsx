@@ -22,7 +22,7 @@ const metricQuery = gql`
 `;
 
 type MetricsProps = {
-  metrics: Object;
+  metrics: string[];
   setMetrics: any;
 };
 
@@ -34,15 +34,18 @@ const MertricSelector: FC<MetricsProps> = (props) => {
 };
 
 const MetricGraphs: FC = () => {
-  const [metrics, setMetrics] = useState<Object>({});
+  const [currentMetrics, setCurrentMetrics] = useState<Object>({});
   const { loading, error, data } = useQuery(metricQuery);
 
   if (loading) return <LinearProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!data) return <Chip label="Metrics not found" />;
 
+  console.log(currentMetrics);
+  const metrics = data.getMetrics;
+
   return (
-    <MertricSelector metrics={metrics} setMetrics={setMetrics} />
+    <MertricSelector metrics={metrics} setMetrics={setCurrentMetrics} />
   );
 };
 
