@@ -1,108 +1,61 @@
-import React, { FC, useState } from 'react';
+import React, {
+  FC,
+} from 'react';
 import {
-  ApolloClient,
-  ApolloProvider,
   useQuery,
   gql,
-  InMemoryCache,
 } from '@apollo/client';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import {
-  Typography,
-  Select,
-  MenuItem,
-  Checkbox,
-  InputLabel,
-  FormControl,
-  ListItemText,
-} from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import Chip from '../../components/Chip';
+// import {
+//   dateCalc,
+//   dateConvert,
+//   thirtySecondsBeforeNow,
+// } from '../../util/dateUtil';
 
-const client = new ApolloClient({
-  uri: 'https://react-assessment.herokuapp.com/graphql',
-  cache: new InMemoryCache(),
-});
-
-const metricQuery = gql`
-  query{
-    getMetrics,
+const graphsQuery = gql`
+  query getMultipleMeasurements($measurements: [MeasurementQuery]){
+    getMultipleMeasurements(input: $measurements){
+      metric
+      measurements{
+        at
+        value
+        unit
+      }
+    }
   }
 `;
 
-type MetricsProps = {
-  metrics: string[];
+type GraphsProps = {
   currentMetrics: string[];
-  setCurrentMetrics: any;
+  after: number;
 };
 
-const MertricSelector: FC<MetricsProps> = (props) => {
-  const { metrics, currentMetrics, setCurrentMetrics } = props;
+const MetricGraphs: FC<GraphsProps> = React.memo((props) => {
+  const { currentMetrics, after } = props;
 
-  const handleChange = (e: any) => {
-    const {
-      target: {
-        value,
-      },
-    } = e;
+  const measurementQuery = currentMetrics.map((metric) => ({
+    metricName: metric,
+    after,
+  }));
 
-    setCurrentMetrics(
-      typeof value === 'string' ? value.split(',') : value,
-    );
-  };
-
-  return (
-    <FormControl fullWidth>
-      <InputLabel id="select-metrics-label">Select Metrics</InputLabel>
-      <Select
-        labelId="select-metrics-label"
-        className="select-metrics-dropdown"
-        multiple
-        value={currentMetrics}
-        onChange={handleChange}
-        renderValue={(selected: any) => selected.join(', ')}
-      >
-        {metrics.map((name) => (
-          <MenuItem key={`${name}`} value={name}>
-            <Checkbox checked={currentMetrics.indexOf(name) > -1} />
-            <ListItemText primary={name} />
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
-
-const MetricGraphs: FC = () => {
-  console.log('Hi!');
-  return (
-    <div>MetricGraphs</div>
-  );
-};
-
-const MetricGraphsContainer: FC = () => {
-  const [currentMetrics, setCurrentMetrics] = useState<string[]>([]);
-  const { loading, error, data } = useQuery(metricQuery);
+  const { loading, error, data } = useQuery(graphsQuery, {
+    variables: {
+      measurements: measurementQuery,
+    },
+    pollInterval: 1000,
+  });
 
   if (loading) return <LinearProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
-  if (!data) return <Chip label="Metrics not found" />;
+  if (!data) return <Chip label="No data found" />;
 
-  const metrics = data.getMetrics;
+  console.log(data);
 
   return (
-    <section>
-      <MertricSelector
-        metrics={metrics}
-        currentMetrics={currentMetrics}
-        setCurrentMetrics={setCurrentMetrics}
-      />
-      <MetricGraphs />
-    </section>
+    <div>MetricGraphs</div>
   );
-};
+});
 
-export default () => (
-  <ApolloProvider client={client}>
-    <MetricGraphsContainer />
-  </ApolloProvider>
-);
+export default MetricGraphs;
